@@ -109,21 +109,21 @@ def test_create_new_post():
 
 # Create a new post with fields set to None values
 @pytest.mark.parametrize("post_with_none", posts_with_none_fields)
-def test_post_with_none_fields(post_with_none):
+def test_create_post_with_none_fields(post_with_none):
     response = requests.post(POSTS_URL, json=post_with_none)
     assert response.status_code == 201, f"Expected 201 when fields are None, got {response.status_code}"
 
 
 # Create a new post with missing fields
 @pytest.mark.parametrize("post_missing_fields", posts_with_missing_fields)
-def test_post_with_missing_fields(post_missing_fields):
+def test_create_post_with_missing_fields(post_missing_fields):
     response = requests.post(POSTS_URL, json=post_missing_fields)
     assert response.status_code == 201, f"Expected 201 when fields are missing, got {response.status_code}"
 
 
 # Create a post with fields having wrong data types
 @pytest.mark.parametrize("post_wrong_types", posts_with_wrong_types)
-def test_post_with_wrong_data_types(post_wrong_types):
+def test_create_post_with_wrong_data_types(post_wrong_types):
     response = requests.post(POSTS_URL, json=post_wrong_types)
     assert response.status_code == 201, f"Expected 201 when fields have wrong types, got {response.status_code}"
 
