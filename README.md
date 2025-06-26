@@ -32,9 +32,15 @@ I picked these tools because they're simple, reliable, and widely used in the in
 
 ### Edge Cases Tested:
 
-- Null values, missing required fields, wrong field types
-- Non-existent IDs, malformed requests
-- Invalid ID formats (strings, special characters)
+- Null values in required fields (None)
+- Missing required fields (e.g., missing title, body, or userId)
+- Wrong field types (e.g., userId as string, title as integer)
+- Non-existent IDs (e.g., 0, 101, 999)
+- Invalid ID formats (e.g., strings like "abc", special characters like "!@#" in path)
+- Malformed requests (empty body, missing content)
+- Large input strings (very long title and body values to test API limits)
+
+
 
 ## 🚀 How to Run
 

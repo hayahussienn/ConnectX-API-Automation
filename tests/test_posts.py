@@ -88,6 +88,15 @@ def test_create_post_with_wrong_data_types(post_wrong_types):
     response = requests.post(POSTS_URL, json=post_wrong_types)
     assert response.status_code == 201
 
+def test_create_post_with_large_input():
+    # Test creating a post with a large title and body
+    response = requests.post(POSTS_URL, json=LARGE_POST)
+    assert response.status_code == 201
+    response_data = response.json()
+    assert_post_data_matches(LARGE_POST, response_data)
+    assert_post_field_types(response_data)
+
+
 
 # --------------------------
 # PUT /posts/{id} tests
@@ -125,6 +134,16 @@ def test_update_post_with_invalid_data_types(post_wrong_types):
     response = requests.put(f"{POSTS_URL}/{UPDATE_ID_VALID}", json=post_wrong_types)
     assert response.status_code == 200
     assert "id" in response.json()
+
+
+def test_update_post_with_large_input():
+    # Test updating a post with large title and body
+    response = requests.put(f"{POSTS_URL}/{UPDATE_ID_VALID}", json=LARGE_POST)
+    assert response.status_code == 200
+    response_data = response.json()
+    assert_post_data_matches(LARGE_POST, response_data)
+    assert_post_field_types(response_data)
+
 
 
 # --------------------------

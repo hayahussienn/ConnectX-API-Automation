@@ -53,6 +53,13 @@ posts_with_wrong_types = [
     {"userId": 1, "title": "Title", "body": 67890},
 ]
 
+# Post with large input strings for stress testing
+LARGE_POST = {
+    "userId": 1,
+    "title": "A" * 1000,   # 1000-character title
+    "body": "B" * 10000    # 10,000-character body
+}
+
 # IDs for delete tests
 DELETE_EXISTING_ID = 5
 DELETE_NON_EXISTING_ID = 666
