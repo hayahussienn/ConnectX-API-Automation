@@ -3,8 +3,6 @@ name: Run Tests and Generate Allure Report
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 
 jobs:
   test:
@@ -24,6 +22,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install allure-pytest
+
+    - name: Setup Allure CLI
+      uses: actions/setup-allure@v2
+      with:
+        allure-version: '2.32.2'
 
     - name: Run pytest with Allure
       run: |
