@@ -24,7 +24,6 @@ def assert_post_data_matches(input_data, response_data):
         assert response_data[key] == input_data[key], f"{key} mismatch"
     assert "id" in response_data, "'id' should be present"
 
-
 # --------------------------
 # GET /posts tests
 # --------------------------
@@ -57,7 +56,6 @@ def test_get_post_by_non_existing_id(non_existing_id):
     assert response.status_code == 404
     assert response.json() == {}
 
-
 # --------------------------
 # POST /posts tests
 # --------------------------
@@ -79,15 +77,11 @@ def test_create_post_with_none_fields(post_with_none):
     assert response.status_code == 201
 
 
-
-
-
 @pytest.mark.parametrize("post_missing_fields", posts_with_missing_fields)
 def test_create_post_with_missing_fields(post_missing_fields):
     # Test creating posts missing some fields (accepted by API)
     response = requests.post(POSTS_URL, json=post_missing_fields)
     assert response.status_code == 201
-
 
 
 @pytest.mark.parametrize("post_wrong_types", posts_with_wrong_types)
@@ -98,8 +92,6 @@ def test_create_post_with_wrong_data_types(post_wrong_types):
     response_data = response.json()
     assert_post_fields_exist(response_data)
     assert_post_data_matches(post_wrong_types, response_data)
-
-
 
 
 def test_create_post_with_large_input():
@@ -129,9 +121,6 @@ def test_post_with_text_plain_and_invalid_body():
     assert response.status_code == 201
     response_data = response.json()
     assert "id" in response_data
-
-
-
 
 # --------------------------
 # PUT /posts/{id} tests
@@ -204,8 +193,6 @@ def test_put_with_text_plain_and_invalid_body():
     # JSONPlaceholder accepts it and returns 200 with dummy 'id'
     assert response.status_code == 500
 
-
-
 # --------------------------
 # DELETE /posts/{id} tests
 # --------------------------
@@ -221,3 +208,5 @@ def test_delete_non_existing_post():
     response = requests.delete(f"{POSTS_URL}/{NON_EXISTING_ID}")
     assert response.status_code == 200
     assert response.json() == {}
+
+
