@@ -39,6 +39,7 @@ I picked these tools because they're simple, reliable, and widely used in the in
 - Invalid ID formats (e.g., strings like "abc", special characters like "!@#" in path)
 - Malformed requests (empty body, missing content)
 - Large input strings (very long title and body values to test API limits)
+- Extra/unexpected fields in the post
 
 
 

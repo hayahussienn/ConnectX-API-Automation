@@ -67,8 +67,10 @@ def test_create_new_post():
     response = requests.post(POSTS_URL, json=VALID_NEW_POST)
     assert response.status_code == 201
     response_data = response.json()
-    assert_post_data_matches(VALID_NEW_POST, response_data)
+    assert_post_fields_exist(response_data)
     assert_post_field_types(response_data)
+    assert_post_data_matches(VALID_NEW_POST, response_data)
+
 
 @pytest.mark.parametrize("post_with_none", posts_with_none_fields)
 def test_create_post_with_none_fields(post_with_none):
@@ -76,11 +78,13 @@ def test_create_post_with_none_fields(post_with_none):
     response = requests.post(POSTS_URL, json=post_with_none)
     assert response.status_code == 201
 
+
 @pytest.mark.parametrize("post_missing_fields", posts_with_missing_fields)
 def test_create_post_with_missing_fields(post_missing_fields):
     # Test creating posts missing some fields (accepted by API)
     response = requests.post(POSTS_URL, json=post_missing_fields)
     assert response.status_code == 201
+
 
 @pytest.mark.parametrize("post_wrong_types", posts_with_wrong_types)
 def test_create_post_with_wrong_data_types(post_wrong_types):
@@ -88,13 +92,25 @@ def test_create_post_with_wrong_data_types(post_wrong_types):
     response = requests.post(POSTS_URL, json=post_wrong_types)
     assert response.status_code == 201
 
+
 def test_create_post_with_large_input():
     # Test creating a post with a large title and body
     response = requests.post(POSTS_URL, json=LARGE_POST)
     assert response.status_code == 201
     response_data = response.json()
-    assert_post_data_matches(LARGE_POST, response_data)
+    assert_post_fields_exist(response_data)
     assert_post_field_types(response_data)
+    assert_post_data_matches(LARGE_POST, response_data)
+
+
+def test_create_post_with_one_extra_field():
+    # Test creating a post with one unexpected extra field
+    response = requests.post(POSTS_URL, json=POST_WITH_ONE_EXTRA_FIELD)
+    assert response.status_code == 201
+    data = response.json()
+    assert_post_fields_exist(data)
+    assert_post_field_types(data)
+    assert data.get("extraField") == "unexpected"
 
 
 
@@ -143,6 +159,18 @@ def test_update_post_with_large_input():
     response_data = response.json()
     assert_post_data_matches(LARGE_POST, response_data)
     assert_post_field_types(response_data)
+
+
+def test_update_post_with_extra_field():
+    # Test updating a post with one unexpected extra field
+    response = requests.put(f"{POSTS_URL}/{UPDATE_ID_VALID}", json=POST_WITH_ONE_EXTRA_FIELD)
+    assert response.status_code == 200
+    data = response.json()
+    # Check required fields exist and are correct
+    assert_post_fields_exist(data)
+    assert_post_field_types(data)
+    # Check extra field is present in the response (JSONPlaceholder echoes it)
+    assert data.get("extraField") == "unexpected"
 
 
 

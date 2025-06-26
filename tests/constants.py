@@ -60,6 +60,16 @@ LARGE_POST = {
     "body": "B" * 10000    # 10,000-character body
 }
 
+# Post with extra field
+POST_WITH_ONE_EXTRA_FIELD = {
+    "userId": 1,
+    "title": "Post with Extra Field",
+    "body": "This post includes an extra field.",
+    "extraField": "unexpected"
+}
+
+
+
 # IDs for delete tests
 DELETE_EXISTING_ID = 5
 DELETE_NON_EXISTING_ID = 666
