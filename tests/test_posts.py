@@ -112,6 +112,15 @@ def test_create_post_with_one_extra_field():
     assert_post_field_types(data)
     assert data.get("extraField") == "unexpected"
 
+def test_post_with_text_plain_and_invalid_body():
+    # Send invalid body with wrong Content-Type
+    response = requests.post(POSTS_URL, data=INVALID_NON_JSON_BODY, headers=INVALID_CONTENT_TYPE_HEADERS)
+    # JSONPlaceholder accepts it and returns 201 with dummy ID
+    assert response.status_code == 201
+    response_data = response.json()
+    assert "id" in response_data
+
+
 
 
 # --------------------------
@@ -171,6 +180,29 @@ def test_update_post_with_extra_field():
     assert_post_field_types(data)
     # Check extra field is present in the response (JSONPlaceholder echoes it)
     assert data.get("extraField") == "unexpected"
+
+def test_put_with_text_plain_and_invalid_body():
+    # Send a PUT request with wrong content type and non-JSON body
+    response = requests.put(
+        f"{POSTS_URL}/{PUT_TEST_ID}",
+        data=INVALID_PUT_BODY,
+        headers=INVALID_PUT_HEADERS
+    )
+    # JSONPlaceholder accepts it and returns 200 with dummy 'id'
+    assert response.status_code == 200
+    response_data = response.json()
+    assert "id" in response_data
+
+
+def test_put_with_text_plain_and_invalid_body_and_invalid_id():
+    # Send a PUT request with wrong content type and non-JSON body to an invalid ID
+    response = requests.put(
+        f"{POSTS_URL}/{INVALID_PUT_ID}",
+        data=INVALID_PUT_BODY,
+        headers=INVALID_PUT_HEADERS
+    )
+    assert response.status_code == 500
+
 
 
 
