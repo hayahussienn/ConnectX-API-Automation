@@ -6,6 +6,8 @@ BASE_URL = "https://jsonplaceholder.typicode.com"
 POSTS_URL = f"{BASE_URL}/posts"
 
 # Valid and invalid post IDs for testing
+VALID_ID=3
+INVALID_ID=666
 VALID_POST_IDS = [1, 2, 3, 50, 100]
 INVALID_POST_IDS = [-5,0, 101, 999, "abc", "!@#"]
 
@@ -68,22 +70,10 @@ POST_WITH_ONE_EXTRA_FIELD = {
     "extraField": "unexpected"
 }
 
-
-# IDs for delete tests
-DELETE_EXISTING_ID = 5
-DELETE_NON_EXISTING_ID = 666
-# IDs for update tests
-UPDATE_ID_VALID = 1
-UPDATE_ID_INVALID = 998
-# Invalid content type and body (used for negative POST test)
+# Invalid content type and body
 INVALID_CONTENT_TYPE_HEADERS = {"Content-Type": "text/plain"}
 INVALID_NON_JSON_BODY = "This is not JSON"
-# Use a valid post ID for testing PUT with invalid body
-PUT_TEST_ID = 2
-# PUT request with incorrect content type and invalid body format
-INVALID_PUT_HEADERS = {"Content-Type": "text/plain"}
-INVALID_PUT_BODY = "This is not valid JSON"
-INVALID_PUT_ID = 9999  # An ID that likely does not exist
+
 
 
 
