@@ -6,10 +6,10 @@ BASE_URL = "https://jsonplaceholder.typicode.com"
 POSTS_URL = f"{BASE_URL}/posts"
 
 # Valid and invalid post IDs for testing
-VALID_ID=3
-INVALID_ID=666
-VALID_POST_IDS = [1, 2, 3, 50, 100]
-INVALID_POST_IDS = [-5,0, 101, 999, "abc", "!@#"]
+EXISTING_ID=3
+NON_EXISTING_ID=666
+EXISTING_IDS = [1, 2, 3, 50, 100]
+NON_EXISTING_IDS = [-5,0, 101, 999, "abc", "!@#"]
 
 # Sample data for creating a new post
 VALID_NEW_POST = {
