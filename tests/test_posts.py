@@ -41,7 +41,7 @@ def test_get_all_posts():
         assert_post_field_types(post)
 
 @pytest.mark.parametrize("post_id", EXISTING_IDS)
-def test_get_post_by_valid_id(post_id):
+def test_get_post_by_existing_id(post_id):
     # Test getting a post by valid ID returns correct post data
     response = requests.get(f"{POSTS_URL}/{post_id}")
     assert response.status_code == 200
@@ -50,10 +50,10 @@ def test_get_post_by_valid_id(post_id):
     assert_post_fields_exist(data)
     assert_post_field_types(data)
 
-@pytest.mark.parametrize("invalid_id", NON_EXISTING_IDS)
-def test_get_post_by_non_existing_id(invalid_id):
+@pytest.mark.parametrize("non_existing_id", NON_EXISTING_IDS)
+def test_get_post_by_non_existing_id(non_existing_id):
     # Test getting post by invalid ID returns 404 and empty response
-    response = requests.get(f"{POSTS_URL}/{invalid_id}")
+    response = requests.get(f"{POSTS_URL}/{non_existing_id}")
     assert response.status_code == 404
     assert response.json() == {}
 
@@ -79,6 +79,9 @@ def test_create_post_with_none_fields(post_with_none):
     assert response.status_code == 201
 
 
+
+
+
 @pytest.mark.parametrize("post_missing_fields", posts_with_missing_fields)
 def test_create_post_with_missing_fields(post_missing_fields):
     # Test creating posts missing some fields (accepted by API)
@@ -86,11 +89,17 @@ def test_create_post_with_missing_fields(post_missing_fields):
     assert response.status_code == 201
 
 
+
 @pytest.mark.parametrize("post_wrong_types", posts_with_wrong_types)
 def test_create_post_with_wrong_data_types(post_wrong_types):
     # Test creating posts with wrong data types (accepted by API)
     response = requests.post(POSTS_URL, json=post_wrong_types)
     assert response.status_code == 201
+    response_data = response.json()
+    assert_post_fields_exist(response_data)
+    assert_post_data_matches(post_wrong_types, response_data)
+
+
 
 
 def test_create_post_with_large_input():
@@ -109,6 +118,7 @@ def test_create_post_with_one_extra_field():
     assert response.status_code == 201
     data = response.json()
     assert_post_fields_exist(data)
+    assert_post_data_matches(POST_WITH_ONE_EXTRA_FIELD, data)
     assert_post_field_types(data)
     assert data.get("extraField") == "unexpected"
 
@@ -133,6 +143,7 @@ def test_update_post():
     print(f"{POSTS_URL}/{EXISTING_IDS}")
     assert response.status_code == 200
     response_data = response.json()
+    assert_post_fields_exist(response_data)
     assert_post_data_matches(UPDATED_POST, response_data)
     assert_post_field_types(response_data)
 
@@ -143,36 +154,37 @@ def test_update_non_existing_post_id():
 
 @pytest.mark.parametrize("post_with_none", posts_with_none_fields)
 def test_update_post_with_none_fields(post_with_none):
-    # Test updating post with None fields returns 200 (edge case)
+    # Test updating an existing post with None fields returns 200 (edge case)
     response = requests.put(f"{POSTS_URL}/{EXISTING_ID}", json=post_with_none)
     assert response.status_code == 200
 
 @pytest.mark.parametrize("post_missing_fields", posts_with_missing_fields)
 def test_update_post_with_missing_fields(post_missing_fields):
-    # Test updating post missing some fields returns 200 and response has 'id'
+    # Test updating post an existing missing some fields returns 200 and response has 'id'
     response = requests.put(f"{POSTS_URL}/{EXISTING_ID}", json=post_missing_fields)
     assert response.status_code == 200
     assert "id" in response.json()
 
 @pytest.mark.parametrize("post_wrong_types", posts_with_wrong_types)
 def test_update_post_with_invalid_data_types(post_wrong_types):
-    # Test updating post with wrong data types returns 200 and response has 'id'
+    # Test updating an existing post with wrong data types returns 200 and response has 'id'
     response = requests.put(f"{POSTS_URL}/{EXISTING_ID}", json=post_wrong_types)
     assert response.status_code == 200
     assert "id" in response.json()
 
 
 def test_update_post_with_large_input():
-    # Test updating a post with large title and body
+    # Test updating an existing post with large title and body
     response = requests.put(f"{POSTS_URL}/{EXISTING_ID}", json=LARGE_POST)
     assert response.status_code == 200
     response_data = response.json()
+    assert_post_fields_exist(response_data)
     assert_post_data_matches(LARGE_POST, response_data)
     assert_post_field_types(response_data)
 
 
 def test_update_post_with_extra_field():
-    # Test updating a post with one unexpected extra field
+    # Test updating an existing post with one unexpected extra field
     response = requests.put(f"{POSTS_URL}/{EXISTING_ID}", json=POST_WITH_ONE_EXTRA_FIELD)
     assert response.status_code == 200
     data = response.json()
@@ -183,7 +195,7 @@ def test_update_post_with_extra_field():
     assert data.get("extraField") == "unexpected"
 
 def test_put_with_text_plain_and_invalid_body():
-    # Send a PUT request with wrong content type and non-JSON body
+    # Send a PUT request with wrong content type and non-JSON body to an existing ID
     response = requests.put(
         f"{POSTS_URL}/{NON_EXISTING_ID}",
         data=INVALID_NON_JSON_BODY,
@@ -191,18 +203,6 @@ def test_put_with_text_plain_and_invalid_body():
     )
     # JSONPlaceholder accepts it and returns 200 with dummy 'id'
     assert response.status_code == 500
-
-
-
-def test_put_with_text_plain_and_invalid_body_and_invalid_id():
-    # Send a PUT request with wrong content type and non-JSON body to an invalid ID
-    response = requests.put(
-        f"{POSTS_URL}/{NON_EXISTING_ID}",
-        data=INVALID_NON_JSON_BODY,
-        headers=INVALID_CONTENT_TYPE_HEADERS
-    )
-    assert response.status_code == 500
-
 
 
 
