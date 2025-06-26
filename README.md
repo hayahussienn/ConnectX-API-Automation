@@ -1,8 +1,8 @@
-# API Test Suite for JSONPlaceholder
+# 📋 API Test Suite for JSONPlaceholder
 
 Automated tests for a REST API that handles blog posts. Tests all the basic operations: create, read, update, and delete posts.
 
-## What I Used
+## 🔧 What I Used
 
 **Python + pytest + requests**
 
@@ -12,7 +12,7 @@ Automated tests for a REST API that handles blog posts. Tests all the basic oper
 
 I picked these tools because they're simple, reliable, and widely used in the industry.
 
-## Test Coverage
+## 📊 Test Coverage
 
 ### All Required Endpoints Covered:
 
@@ -36,7 +36,7 @@ I picked these tools because they're simple, reliable, and widely used in the in
 - Non-existent IDs, malformed requests
 - Invalid ID formats (strings, special characters)
 
-## How to Run
+## 🚀 How to Run
 
 ### Install what you need:
 
@@ -57,7 +57,7 @@ pytest test_api.py::TestGetPosts -v    # Only GET tests
 pytest test_api.py::TestCreatePost -v  # Only POST tests
 ```
 
-## Challenges I Found
+## ⚠️ Challenges I Found
 
 ### Main Issues:
 
@@ -65,13 +65,13 @@ pytest test_api.py::TestCreatePost -v  # Only POST tests
 
 2. **No Real Changes**: Since it's a fake API, nothing actually gets saved. Had to get creative testing if operations "worked."
 
-### Interesting Discoveries:
+### 💡 Interesting Discoveries:
 
 - The API is very forgiving - accepts null values and wrong data types
 - Always returns consistent JSON structure
 - Fast response times (under 1 second)
 
-## How to Make This API Better
+## 🔮 How to Make This API Better
 
 ### For a Real Production API:
 
