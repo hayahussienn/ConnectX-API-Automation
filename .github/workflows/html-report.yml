@@ -2,7 +2,10 @@ name: Run Pytest and Generate HTML Report
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - master
+  workflow_dispatch:
 
 jobs:
   test:
