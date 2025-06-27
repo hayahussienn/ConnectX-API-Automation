@@ -11,6 +11,14 @@ NON_EXISTING_ID=666
 EXISTING_IDS = [1, 2, 3, 50, 100]
 NON_EXISTING_IDS = [-5,0, 101, 999, "abc", "!@#"]
 
+
+# HTTP Status Code Constants
+HTTP_OK = 200
+HTTP_CREATED = 201
+HTTP_NOT_FOUND = 404
+HTTP_INTERNAL_SERVER_ERROR = 500
+HTTP_BAD_REQUEST = 400
+
 # Sample data for creating a new post
 VALID_NEW_POST = {
     "userId": 11,
