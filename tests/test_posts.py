@@ -20,7 +20,7 @@ def test_get_all_posts():
 
 @pytest.mark.parametrize("post_id", EXISTING_IDS)
 def test_get_post_by_existing_id(post_id):
-    # Test getting a specific post by existing ID returns correct post data
+    # Test that getting a post by a existing ID returns the correct post with all expected fields
     response = requests.get(f"{POSTS_URL}/{post_id}")
     assert response.status_code == 200
     data = response.json()
@@ -30,7 +30,7 @@ def test_get_post_by_existing_id(post_id):
 
 @pytest.mark.parametrize("non_existing_id", NON_EXISTING_IDS)
 def test_get_post_by_non_existing_id(non_existing_id):
-    # Test that requesting a non-existing post ID returns 404 and empty response
+    # Test that getting a post by a non-existing ID returns 404 status and an empty response
     response = requests.get(f"{POSTS_URL}/{non_existing_id}")
     assert response.status_code == 404
     assert response.json() == {}
@@ -41,7 +41,7 @@ def test_get_post_by_non_existing_id(non_existing_id):
 # Note: JSONPlaceholder does not persist created posts, so we can't verify by GET
 
 def test_create_new_post():
-    # Test creating a new post with valid data returns 201 and correct response content
+    # Test that creating a post with valid data returns 201 status and the correct response
     response = requests.post(POSTS_URL, json=VALID_NEW_POST)
     assert response.status_code == 201
     response_data = response.json()
@@ -51,7 +51,7 @@ def test_create_new_post():
 
 @pytest.mark.parametrize("post_missing_fields", posts_with_missing_fields)
 def test_create_post_with_missing_fields(post_missing_fields):
-    # Test creating posts missing some fields; API still accepts and returns created post
+    # Test that creating a post with missing fields still returns 201 and includes only the sent fields
     response = requests.post(POSTS_URL, json=post_missing_fields)
     assert response.status_code == 201, f"Expected 201, got {response.status_code}"
     response_data = response.json()
@@ -63,7 +63,7 @@ def test_create_post_with_missing_fields(post_missing_fields):
 
 @pytest.mark.parametrize("post_with_none", posts_with_none_fields)
 def test_create_post_with_none_fields(post_with_none):
-    # Test creating posts with None values in some fields
+    # Test that creating a post with None values returns 201 and includes the None values in the response
     response = requests.post(POSTS_URL, json=post_with_none)
     assert response.status_code == 201, f"Expected 201, got {response.status_code}"
     response_data = response.json()
@@ -74,7 +74,7 @@ def test_create_post_with_none_fields(post_with_none):
 
 @pytest.mark.parametrize("post_wrong_types", posts_with_wrong_types)
 def test_create_post_with_wrong_data_types(post_wrong_types):
-    # Test creating posts where fields have wrong data types
+    # Test that creating a post with wrong data types returns 201 and includes the same values in the response
     response = requests.post(POSTS_URL, json=post_wrong_types)
     assert response.status_code == 201
     response_data = response.json()
@@ -82,7 +82,7 @@ def test_create_post_with_wrong_data_types(post_wrong_types):
     assert_post_data_matches(post_wrong_types, response_data)
 
 def test_create_post_with_large_input():
-    # Test creating a post with large content in title and body fields
+    # Test that creating a post with very large input values returns 201 and includes the large data
     response = requests.post(POSTS_URL, json=LARGE_POST)
     assert response.status_code == 201
     response_data = response.json()
@@ -91,7 +91,7 @@ def test_create_post_with_large_input():
     assert_post_data_matches(LARGE_POST, response_data)
 
 def test_create_post_with_one_extra_field():
-    # Test creating a post with an extra unexpected field included
+    # Test that creating a post with an extra unexpected field returns 201 and includes the extra field
     response = requests.post(POSTS_URL, json=POST_WITH_ONE_EXTRA_FIELD)
     assert response.status_code == 201, f"Expected 201, got {response.status_code}"
     data = response.json()
@@ -102,7 +102,7 @@ def test_create_post_with_one_extra_field():
     assert data["extraField"] == "unexpected", f"Expected 'unexpected', got {data['extraField']}"
 
 def test_post_with_text_plain_and_invalid_body():
-    # Test sending invalid body with wrong content type header
+    # Test that creating a post with invalid content-type and body still returns 201 (due to fake API behavior)
     response = requests.post(POSTS_URL, data=INVALID_NON_JSON_BODY, headers=INVALID_CONTENT_TYPE_HEADERS)
     assert response.status_code == 201
     response_data = response.json()
@@ -115,7 +115,7 @@ def test_post_with_text_plain_and_invalid_body():
 # but it does not persist changes, so we can't verify the update by performing a GET request afterwards.
 
 def test_update_post():
-    # Test updating an existing post with valid data returns 200 and correct response
+    # Test that updating an existing post with valid data returns 200 and correct updated content
     response = requests.put(f"{POSTS_URL}/{EXISTING_ID}", json=UPDATED_POST)
     assert response.status_code == 200
     response_data = response.json()
@@ -132,7 +132,7 @@ def test_update_non_existing_post_id():
 
 @pytest.mark.parametrize("post_with_none", posts_with_none_fields)
 def test_update_post_with_none_fields(post_with_none):
-    # Test updating an existing post with fields set to None
+    # Test that updating a post with None values returns 200 and includes those values in the response
     response = requests.put(f"{POSTS_URL}/{EXISTING_ID}", json=post_with_none)
     assert response.status_code == 200, f"Expected 200, got {response.status_code}"
     response_data = response.json()
@@ -144,7 +144,7 @@ def test_update_post_with_none_fields(post_with_none):
 
 @pytest.mark.parametrize("post_missing_fields", posts_with_missing_fields)
 def test_update_post_with_missing_fields(post_missing_fields):
-    # Test updating an existing post with some missing fields
+    # Test that updating a post with missing fields returns 200 and includes only the updated fields
     response = requests.put(f"{POSTS_URL}/{EXISTING_ID}", json=post_missing_fields)
     assert response.status_code == 200, f"Expected 200, got {response.status_code}"
     response_data = response.json()
@@ -155,8 +155,8 @@ def test_update_post_with_missing_fields(post_missing_fields):
     assert response_data["id"] == EXISTING_ID, f"Expected id={EXISTING_ID}, got {response_data['id']}"
 
 @pytest.mark.parametrize("post_wrong_types", posts_with_wrong_types)
-def test_update_post_with_invalid_data_types(post_wrong_types):
-    # Test updating post with wrong data types still returns 200 and response includes 'id'
+def test_update_post_with_wrong_data_types(post_wrong_types):
+    # Test that updating a post with wrong data types returns 200 and includes the same values in the response
     response = requests.put(f"{POSTS_URL}/{EXISTING_ID}", json=post_wrong_types)
     assert response.status_code == 200
     response_data = response.json()
@@ -164,7 +164,7 @@ def test_update_post_with_invalid_data_types(post_wrong_types):
     assert_post_data_matches(post_wrong_types, response_data)
 
 def test_update_post_with_large_input():
-    # Test updating an existing post with large title and body content
+    # Test that updating a post with large input values returns 200 and the response includes the large data
     response = requests.put(f"{POSTS_URL}/{EXISTING_ID}", json=LARGE_POST)
     assert response.status_code == 200
     response_data = response.json()
@@ -173,7 +173,7 @@ def test_update_post_with_large_input():
     assert_post_field_types(response_data)
 
 def test_update_post_with_extra_field():
-    # Test updating an existing post with one unexpected extra field
+    # Test that updating a post with an extra unexpected field returns 200 and includes the extra field
     response = requests.put(f"{POSTS_URL}/{EXISTING_ID}", json=POST_WITH_ONE_EXTRA_FIELD)
     assert response.status_code == 200
     data = response.json()
