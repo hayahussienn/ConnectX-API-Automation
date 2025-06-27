@@ -1,35 +1,14 @@
 import pytest
 import requests
 from .constants import *
-
-# Helper Functions
-
-def assert_post_fields_exist(post):
-    # Check that all required fields exist in a post
-    assert "userId" in post, "Missing 'userId' in post"
-    assert "id" in post, "Missing 'id' in post"
-    assert "title" in post, "Missing 'title' in post"
-    assert "body" in post, "Missing 'body' in post"
-
-def assert_post_field_types(post):
-    # Check that post fields have correct data types
-    assert isinstance(post["userId"], int), "'userId' must be int"
-    assert isinstance(post["id"], int), "'id' must be int"
-    assert isinstance(post["title"], str), "'title' must be str"
-    assert isinstance(post["body"], str), "'body' must be str"
-
-def assert_post_data_matches(input_data, response_data):
-    # Verify response matches the input data (except 'id')
-    for key in ["userId", "title", "body"]:
-        assert response_data[key] == input_data[key], f"{key} mismatch"
-    assert "id" in response_data, "'id' should be present"
+from .helper import assert_post_fields_exist, assert_post_field_types, assert_post_data_matches
 
 # --------------------------
 # GET /posts tests
 # --------------------------
 
 def test_get_all_posts():
-    # Test getting all posts returns list with correct fields and types
+    # Test that getting all posts returns a list of posts with required fields and correct types
     response = requests.get(POSTS_URL)
     assert response.status_code == 200
     posts = response.json()
@@ -41,7 +20,7 @@ def test_get_all_posts():
 
 @pytest.mark.parametrize("post_id", EXISTING_IDS)
 def test_get_post_by_existing_id(post_id):
-    # Test getting a post by valid ID returns correct post data
+    # Test getting a specific post by existing ID returns correct post data
     response = requests.get(f"{POSTS_URL}/{post_id}")
     assert response.status_code == 200
     data = response.json()
@@ -51,7 +30,7 @@ def test_get_post_by_existing_id(post_id):
 
 @pytest.mark.parametrize("non_existing_id", NON_EXISTING_IDS)
 def test_get_post_by_non_existing_id(non_existing_id):
-    # Test getting post by invalid ID returns 404 and empty response
+    # Test that requesting a non-existing post ID returns 404 and empty response
     response = requests.get(f"{POSTS_URL}/{non_existing_id}")
     assert response.status_code == 404
     assert response.json() == {}
@@ -59,9 +38,10 @@ def test_get_post_by_non_existing_id(non_existing_id):
 # --------------------------
 # POST /posts tests
 # --------------------------
+# Note: JSONPlaceholder does not persist created posts, so we can't verify by GET
 
 def test_create_new_post():
-    # Test creating a post with valid data returns 201 and correct response
+    # Test creating a new post with valid data returns 201 and correct response content
     response = requests.post(POSTS_URL, json=VALID_NEW_POST)
     assert response.status_code == 201
     response_data = response.json()
@@ -69,33 +49,40 @@ def test_create_new_post():
     assert_post_field_types(response_data)
     assert_post_data_matches(VALID_NEW_POST, response_data)
 
+@pytest.mark.parametrize("post_missing_fields", posts_with_missing_fields)
+def test_create_post_with_missing_fields(post_missing_fields):
+    # Test creating posts missing some fields; API still accepts and returns created post
+    response = requests.post(POSTS_URL, json=post_missing_fields)
+    assert response.status_code == 201, f"Expected 201, got {response.status_code}"
+    response_data = response.json()
+    # Check that keys sent are in response with matching values
+    for key in post_missing_fields:
+        assert key in response_data, f"Missing key '{key}' in response"
+        assert response_data[key] == post_missing_fields[key], f"Value mismatch for key '{key}'"
+    assert "id" in response_data, "Missing 'id' in response"
 
 @pytest.mark.parametrize("post_with_none", posts_with_none_fields)
 def test_create_post_with_none_fields(post_with_none):
-    # Test creating posts with None fields (accepted by API)
+    # Test creating posts with None values in some fields
     response = requests.post(POSTS_URL, json=post_with_none)
-    assert response.status_code == 201
-
-
-@pytest.mark.parametrize("post_missing_fields", posts_with_missing_fields)
-def test_create_post_with_missing_fields(post_missing_fields):
-    # Test creating posts missing some fields (accepted by API)
-    response = requests.post(POSTS_URL, json=post_missing_fields)
-    assert response.status_code == 201
-
+    assert response.status_code == 201, f"Expected 201, got {response.status_code}"
+    response_data = response.json()
+    for key in post_with_none:
+        assert key in response_data, f"Missing key '{key}' in response"
+        assert response_data[key] == post_with_none[key], f"Value mismatch for key '{key}'"
+    assert "id" in response_data, "Missing 'id' in response"
 
 @pytest.mark.parametrize("post_wrong_types", posts_with_wrong_types)
 def test_create_post_with_wrong_data_types(post_wrong_types):
-    # Test creating posts with wrong data types (accepted by API)
+    # Test creating posts where fields have wrong data types
     response = requests.post(POSTS_URL, json=post_wrong_types)
     assert response.status_code == 201
     response_data = response.json()
     assert_post_fields_exist(response_data)
     assert_post_data_matches(post_wrong_types, response_data)
 
-
 def test_create_post_with_large_input():
-    # Test creating a post with a large title and body
+    # Test creating a post with large content in title and body fields
     response = requests.post(POSTS_URL, json=LARGE_POST)
     assert response.status_code == 201
     response_data = response.json()
@@ -103,21 +90,20 @@ def test_create_post_with_large_input():
     assert_post_field_types(response_data)
     assert_post_data_matches(LARGE_POST, response_data)
 
-
 def test_create_post_with_one_extra_field():
-    # Test creating a post with one unexpected extra field
+    # Test creating a post with an extra unexpected field included
     response = requests.post(POSTS_URL, json=POST_WITH_ONE_EXTRA_FIELD)
-    assert response.status_code == 201
+    assert response.status_code == 201, f"Expected 201, got {response.status_code}"
     data = response.json()
     assert_post_fields_exist(data)
-    assert_post_data_matches(POST_WITH_ONE_EXTRA_FIELD, data)
     assert_post_field_types(data)
-    assert data.get("extraField") == "unexpected"
+    assert_post_data_matches(POST_WITH_ONE_EXTRA_FIELD, data)
+    assert "extraField" in data, "extraField not found in response"
+    assert data["extraField"] == "unexpected", f"Expected 'unexpected', got {data['extraField']}"
 
 def test_post_with_text_plain_and_invalid_body():
-    # Send invalid body with wrong Content-Type
+    # Test sending invalid body with wrong content type header
     response = requests.post(POSTS_URL, data=INVALID_NON_JSON_BODY, headers=INVALID_CONTENT_TYPE_HEADERS)
-    # JSONPlaceholder accepts it and returns 201 with dummy ID
     assert response.status_code == 201
     response_data = response.json()
     assert "id" in response_data
@@ -125,11 +111,12 @@ def test_post_with_text_plain_and_invalid_body():
 # --------------------------
 # PUT /posts/{id} tests
 # --------------------------
+# Note: JSONPlaceholder accepts update requests and returns the updated data,
+# but it does not persist changes, so we can't verify the update by performing a GET request afterwards.
 
 def test_update_post():
-    # Test updating existing post with valid data returns 200 and correct response
+    # Test updating an existing post with valid data returns 200 and correct response
     response = requests.put(f"{POSTS_URL}/{EXISTING_ID}", json=UPDATED_POST)
-    print(f"{POSTS_URL}/{EXISTING_IDS}")
     assert response.status_code == 200
     response_data = response.json()
     assert_post_fields_exist(response_data)
@@ -137,33 +124,45 @@ def test_update_post():
     assert_post_field_types(response_data)
 
 def test_update_non_existing_post_id():
-    # Test updating non-existing post returns 500 error
+    # Test updating a post that does not exist returns 500 error
     response = requests.put(f"{POSTS_URL}/{NON_EXISTING_ID}", json=UPDATE_INVALID_POST)
     assert response.status_code == 500
 
 @pytest.mark.parametrize("post_with_none", posts_with_none_fields)
 def test_update_post_with_none_fields(post_with_none):
-    # Test updating an existing post with None fields returns 200 (edge case)
+    # Test updating an existing post with fields set to None
     response = requests.put(f"{POSTS_URL}/{EXISTING_ID}", json=post_with_none)
-    assert response.status_code == 200
+    assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+    response_data = response.json()
+    for key in post_with_none:
+        assert key in response_data, f"Missing key '{key}' in response"
+        assert response_data[key] == post_with_none[key], f"Mismatch for key '{key}': expected {post_with_none[key]}, got {response_data[key]}"
+    assert "id" in response_data, "Missing 'id' in response"
+    assert response_data["id"] == EXISTING_ID, f"Expected id={EXISTING_ID}, got {response_data['id']}"
 
 @pytest.mark.parametrize("post_missing_fields", posts_with_missing_fields)
 def test_update_post_with_missing_fields(post_missing_fields):
-    # Test updating post an existing missing some fields returns 200 and response has 'id'
+    # Test updating an existing post with some missing fields
     response = requests.put(f"{POSTS_URL}/{EXISTING_ID}", json=post_missing_fields)
-    assert response.status_code == 200
-    assert "id" in response.json()
+    assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+    response_data = response.json()
+    for key in post_missing_fields:
+        assert key in response_data, f"Missing key '{key}' in response"
+        assert response_data[key] == post_missing_fields[key], f"Mismatch in '{key}'"
+    assert "id" in response_data, "Missing 'id' in response"
+    assert response_data["id"] == EXISTING_ID, f"Expected id={EXISTING_ID}, got {response_data['id']}"
 
 @pytest.mark.parametrize("post_wrong_types", posts_with_wrong_types)
 def test_update_post_with_invalid_data_types(post_wrong_types):
-    # Test updating an existing post with wrong data types returns 200 and response has 'id'
+    # Test updating post with wrong data types still returns 200 and response includes 'id'
     response = requests.put(f"{POSTS_URL}/{EXISTING_ID}", json=post_wrong_types)
     assert response.status_code == 200
-    assert "id" in response.json()
-
+    response_data = response.json()
+    assert_post_fields_exist(response_data)
+    assert_post_data_matches(post_wrong_types, response_data)
 
 def test_update_post_with_large_input():
-    # Test updating an existing post with large title and body
+    # Test updating an existing post with large title and body content
     response = requests.put(f"{POSTS_URL}/{EXISTING_ID}", json=LARGE_POST)
     assert response.status_code == 200
     response_data = response.json()
@@ -171,42 +170,42 @@ def test_update_post_with_large_input():
     assert_post_data_matches(LARGE_POST, response_data)
     assert_post_field_types(response_data)
 
-
 def test_update_post_with_extra_field():
     # Test updating an existing post with one unexpected extra field
     response = requests.put(f"{POSTS_URL}/{EXISTING_ID}", json=POST_WITH_ONE_EXTRA_FIELD)
     assert response.status_code == 200
     data = response.json()
-    # Check required fields exist and are correct
     assert_post_fields_exist(data)
+    assert_post_data_matches(POST_WITH_ONE_EXTRA_FIELD, data)
     assert_post_field_types(data)
-    # Check extra field is present in the response (JSONPlaceholder echoes it)
-    assert data.get("extraField") == "unexpected"
+    assert "extraField" in data, "extraField not found in response"
+    assert data["extraField"] == "unexpected", f"Expected 'unexpected', got {data['extraField']}"
 
 def test_put_with_text_plain_and_invalid_body():
-    # Send a PUT request with wrong content type and non-JSON body to an existing ID
+    # Test PUT request with invalid content-type and non-JSON body returns 500 error
     response = requests.put(
         f"{POSTS_URL}/{NON_EXISTING_ID}",
         data=INVALID_NON_JSON_BODY,
         headers=INVALID_CONTENT_TYPE_HEADERS
     )
-    # JSONPlaceholder accepts it and returns 200 with dummy 'id'
     assert response.status_code == 500
 
 # --------------------------
 # DELETE /posts/{id} tests
 # --------------------------
 
+# Note: JSONPlaceholder simulates delete requests but does not actually remove data,
+# so we *can* perform a GET request after DELETE, but it will still return the original post.
+# Therefore, we can't reliably verify deletion by GET on this fake API.
+
 def test_delete_existing_post():
-    # Test deleting existing post returns 200 and empty response
+    # Test deleting an existing post returns 200 and empty response body
     response = requests.delete(f"{POSTS_URL}/{EXISTING_ID}")
     assert response.status_code == 200
     assert response.json() == {}
 
 def test_delete_non_existing_post():
-    # Test deleting non-existing post returns 200 and empty response
+    # Test deleting a non-existing post returns 200 and empty response body
     response = requests.delete(f"{POSTS_URL}/{NON_EXISTING_ID}")
     assert response.status_code == 200
     assert response.json() == {}
-
-
