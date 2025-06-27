@@ -2,15 +2,20 @@
 
 Automated tests for a REST API that handles blog posts. Tests all the basic operations: create, read, update, and delete posts.
 
-## 🔧 What I Used
+# 🔧 What I Used
 
-**Python + pytest + requests**
+## Python + pytest + requests
 
-- **pytest**: Great for running tests and showing results clearly
-- **requests**: Simple way to make HTTP calls to APIs
-- **Python**: Easy to read and write test code
+- **Python**: Easy to read and write test code  
+- **pytest**: Great for running tests and displaying results clearly  
+- **requests**: Simple and effective way to make HTTP calls to APIs  
 
-I picked these tools because they're simple, reliable, and widely used in the industry.
+## Postman
+
+- Used to manually test the same endpoints for comparison  
+- Demonstrates familiarity with UI-based API testing tools  
+
+I chose these tools because they are simple, reliable, and widely used in the industry.
 
 ## 🗂️ Project Structure
 
@@ -56,6 +61,14 @@ This modular organization helps keep the codebase clean, maintainable, and easy 
 - Large input strings (very long title and body values to test API limits)
 - Extra/unexpected fields in the post
 
+## 📬 Postman Collection
+
+A manual version of the same test scenarios was implemented in Postman for comparison.
+
+### 🔗 View Public Postman Collection:
+👉 [JSONPlaceholder API Tests – Postman (Public)](https://www.postman.com/aviation-astronaut-47417982/jsonplaceholder-api-tests/collection/jx5ns9g/jsonplaceholder-api-tests)
+
+You can view and import the collection to inspect or run tests manually.
 
 
 ## 🚀 How to Run
