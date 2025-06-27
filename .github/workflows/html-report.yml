@@ -3,7 +3,6 @@ name: Run Pytest and Generate HTML Report
 on:
   push:
     branches: [main]
-  workflow_dispatch:  # Allows manual triggering from GitHub UI
 
 jobs:
   test:
