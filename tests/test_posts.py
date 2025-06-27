@@ -1,7 +1,7 @@
 import pytest
 import requests
 from .constants import *
-from .helper import assert_post_fields_exist, assert_post_field_types, assert_post_data_matches
+from .helper import assert_post_fields_exist, assert_post_field_types, assert_post_data_matches , assert_subset_matches
 
 # --------------------------
 # GET /posts tests
@@ -49,6 +49,7 @@ def test_create_new_post():
     assert_post_field_types(response_data)
     assert_post_data_matches(VALID_NEW_POST, response_data)
 
+
 @pytest.mark.parametrize("post_missing_fields", posts_with_missing_fields)
 def test_create_post_with_missing_fields(post_missing_fields):
     # Test that creating a post with missing fields still returns 201 and includes only the sent fields
@@ -56,21 +57,20 @@ def test_create_post_with_missing_fields(post_missing_fields):
     assert response.status_code == 201, f"Expected 201, got {response.status_code}"
     response_data = response.json()
     # Check that keys sent are in response with matching values
-    for key in post_missing_fields:
-        assert key in response_data, f"Missing key '{key}' in response"
-        assert response_data[key] == post_missing_fields[key], f"Value mismatch for key '{key}'"
+    assert_subset_matches(post_missing_fields, response_data)
     assert "id" in response_data, "Missing 'id' in response"
+
+
 
 @pytest.mark.parametrize("post_with_none", posts_with_none_fields)
 def test_create_post_with_none_fields(post_with_none):
-    # Test that creating a post with None values returns 201 and includes the None values in the response
+    # Test that creating a post with None values returns 201 and includes those values in the response
     response = requests.post(POSTS_URL, json=post_with_none)
     assert response.status_code == 201, f"Expected 201, got {response.status_code}"
     response_data = response.json()
-    for key in post_with_none:
-        assert key in response_data, f"Missing key '{key}' in response"
-        assert response_data[key] == post_with_none[key], f"Value mismatch for key '{key}'"
+    assert_subset_matches(post_with_none, response_data)
     assert "id" in response_data, "Missing 'id' in response"
+
 
 @pytest.mark.parametrize("post_wrong_types", posts_with_wrong_types)
 def test_create_post_with_wrong_data_types(post_wrong_types):
@@ -130,17 +130,17 @@ def test_update_non_existing_post_id():
     response = requests.put(f"{POSTS_URL}/{NON_EXISTING_ID}", json=UPDATE_INVALID_POST)
     assert response.status_code == 500
 
+
 @pytest.mark.parametrize("post_with_none", posts_with_none_fields)
 def test_update_post_with_none_fields(post_with_none):
     # Test that updating a post with None values returns 200 and includes those values in the response
     response = requests.put(f"{POSTS_URL}/{EXISTING_ID}", json=post_with_none)
     assert response.status_code == 200, f"Expected 200, got {response.status_code}"
     response_data = response.json()
-    for key in post_with_none:
-        assert key in response_data, f"Missing key '{key}' in response"
-        assert response_data[key] == post_with_none[key], f"Mismatch for key '{key}': expected {post_with_none[key]}, got {response_data[key]}"
+    assert_subset_matches(post_with_none, response_data)
     assert "id" in response_data, "Missing 'id' in response"
     assert response_data["id"] == EXISTING_ID, f"Expected id={EXISTING_ID}, got {response_data['id']}"
+
 
 @pytest.mark.parametrize("post_missing_fields", posts_with_missing_fields)
 def test_update_post_with_missing_fields(post_missing_fields):
@@ -148,11 +148,10 @@ def test_update_post_with_missing_fields(post_missing_fields):
     response = requests.put(f"{POSTS_URL}/{EXISTING_ID}", json=post_missing_fields)
     assert response.status_code == 200, f"Expected 200, got {response.status_code}"
     response_data = response.json()
-    for key in post_missing_fields:
-        assert key in response_data, f"Missing key '{key}' in response"
-        assert response_data[key] == post_missing_fields[key], f"Mismatch in '{key}'"
+    assert_subset_matches(post_missing_fields, response_data)
     assert "id" in response_data, "Missing 'id' in response"
     assert response_data["id"] == EXISTING_ID, f"Expected id={EXISTING_ID}, got {response_data['id']}"
+
 
 @pytest.mark.parametrize("post_wrong_types", posts_with_wrong_types)
 def test_update_post_with_wrong_data_types(post_wrong_types):
