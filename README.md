@@ -82,14 +82,13 @@ pip install pytest requests
 ### Run all tests:
 
 ```bash
-pytest test_posts.py -v
+pytest tests/test_posts.py -v
 ```
 
-### Run specific tests:
+### Run specific tests(e.g., the "get all posts" test):
 
 ```bash
-pytest test_posts.py::TestGetPosts -v    # Only GET tests
-pytest test_posts.py::TestCreatePost -v  # Only POST tests
+pytest tests/test_posts.py::test_get_all_posts -v 
 ```
 # 🧪 Test Report
 
