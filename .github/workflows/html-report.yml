@@ -3,6 +3,7 @@ name: Run Pytest and Generate HTML Report
 on:
   push:
     branches: [main]
+  workflow_dispatch:  # Allows manual triggering from GitHub UI
 
 jobs:
   test:
@@ -25,7 +26,7 @@ jobs:
       - name: Run tests and generate HTML report
         run: pytest --html=report.html --self-contained-html
 
-      - name: Upload HTML report
+      - name: Upload HTML report as artifact
         uses: actions/upload-artifact@v4
         with:
           name: pytest-html-report
