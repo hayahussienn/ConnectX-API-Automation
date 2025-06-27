@@ -12,6 +12,21 @@ Automated tests for a REST API that handles blog posts. Tests all the basic oper
 
 I picked these tools because they're simple, reliable, and widely used in the industry.
 
+## 🗂️ Project Structure
+
+- **Tests file**  
+  All test cases are organized in a single main test file (`test_posts.py`). This helps keep tests focused and easy to locate.
+
+- **Constants file**  
+  Test data, such as URLs and input samples, are stored separately in `constants.py` for better manageability and easy reuse across tests.
+
+- **Helper Functions file**  
+  Common assertion and validation functions are kept in `helper.py` to reduce duplication and improve code readability.
+
+This modular organization helps keep the codebase clean, maintainable, and easy to extend.
+
+
+
 ## 📊 Test Coverage
 
 ### All Required Endpoints Covered:
@@ -54,14 +69,14 @@ pip install pytest requests
 ### Run all tests:
 
 ```bash
-pytest test_api.py -v
+pytest test_posts.py -v
 ```
 
 ### Run specific tests:
 
 ```bash
-pytest test_api.py::TestGetPosts -v    # Only GET tests
-pytest test_api.py::TestCreatePost -v  # Only POST tests
+pytest test_posts.py::TestGetPosts -v    # Only GET tests
+pytest test_posts.py::TestCreatePost -v  # Only POST tests
 ```
 
 ## ⚠️ Challenges I Found
