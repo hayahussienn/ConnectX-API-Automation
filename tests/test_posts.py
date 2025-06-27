@@ -124,7 +124,9 @@ def test_update_post():
     assert_post_field_types(response_data)
 
 def test_update_non_existing_post_id():
-    # Test updating a post that does not exist returns 500 error
+    # Test updating a post that does not exist returns 500 error.
+    # Note: In a real API, this would typically return 404 Not Found.
+    # JSONPlaceholder returns 500 due to its fake implementation.
     response = requests.put(f"{POSTS_URL}/{NON_EXISTING_ID}", json=UPDATE_INVALID_POST)
     assert response.status_code == 500
 
@@ -182,7 +184,9 @@ def test_update_post_with_extra_field():
     assert data["extraField"] == "unexpected", f"Expected 'unexpected', got {data['extraField']}"
 
 def test_put_with_text_plain_and_invalid_body():
-    # Test PUT request with invalid content-type and non-JSON body returns 500 error
+    # Test PUT request with invalid content-type and non-JSON body returns 500 error.
+    # Note: A real API would likely return 400 Bad Request here.
+    # JSONPlaceholder returns 500 due to its fake API behavio
     response = requests.put(
         f"{POSTS_URL}/{NON_EXISTING_ID}",
         data=INVALID_NON_JSON_BODY,
