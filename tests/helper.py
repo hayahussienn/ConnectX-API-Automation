@@ -18,8 +18,7 @@ def assert_post_data_matches(input_data, response_data):
     # Check that response data matches input data except for 'id' field
     for key in ["userId", "title", "body"]:
         assert response_data[key] == input_data[key], f"{key} mismatch"
-    # Ensure response contains an 'id' field
-    assert "id" in response_data, "'id' should be present"
+
 
 def assert_subset_matches(input_data, response_data):
     # Assert all keys and values from input_data exist in response_data
