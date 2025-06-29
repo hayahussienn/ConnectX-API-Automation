@@ -90,17 +90,32 @@ pytest tests/test_posts.py -v
 ```bash
 pytest tests/test_posts.py::test_get_all_posts -v 
 ```
+
+
 # 🧪 Test Report
 
 This project uses **pytest-html** to create an easy-to-read HTML test report.
 
-- **Locally:** Run tests with `pytest --html=report.html --self-contained-html`.  
-  Open `report.html` in a browser to see detailed results, including passed/failed tests and errors.
+- **Locally:**  
+  1. Install the required package:  
+     ```bash
+     pip install pytest-html
+     ```
+  2. Run the tests and generate the report:  
+     ```bash
+     pytest --html=report.html --self-contained-html
+     ```
+  3. Open `report.html` in your browser to view detailed results, including passed/failed tests and errors.
 
-- **On GitHub Actions:** The report is saved as an artifact named **pytest-html-report**.  
-  To view it: Go to **Actions** → select a workflow run → scroll to **Artifacts** → download and open `report.html`.
+- **On GitHub Actions:**  
+  The report is saved as an artifact named **pytest-html-report**.  
+  To view it:
+  - Go to **Actions**
+  - Select a workflow run
+  - Scroll to **Artifacts**
+  - Download and open `report.html`
 
-The report helps quickly find test failures with clear, visual details.
+The report provides clear, visual feedback to quickly identify test failures and errors.
 
 
 ## ⚠️ Challenges I Found
